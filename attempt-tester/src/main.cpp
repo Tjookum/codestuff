@@ -16,31 +16,13 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
- for (int fadeValue = 0 ; fadeValue <= 255; fadeValue += 5) {
+digitalWrite(PA6,HIGH);
+digitalWrite(PA7, LOW);
+digitalWrite(PC13, HIGH);
+delay(1000);
+digitalWrite(PA6,LOW);
+digitalWrite(PA7, HIGH);
+digitalWrite(PC13, LOW);
+delay(1000);
 
-    // sets the value (range from 0 to 255):
-
-    analogWrite(PA6, fadeValue);
-    digitalWrite(PA7,LOW);
-
-    // wait for 30 milliseconds to see the dimming effect
-
-    delay(30);
-
-  }
-
-  // fade out from max to min in increments of 5 points:
-
-  for (int fadeValue = 0 ; fadeValue >= 255; fadeValue -= 5) {
-
-    // sets the value (range from 0 to 255):
-
-     analogWrite(PA7, fadeValue);
-    digitalWrite(PA6,LOW);
-
-    // wait for 30 milliseconds to see the dimming effect
-
-    delay(30);
-
-  }
 }
