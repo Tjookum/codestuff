@@ -1,32 +1,10 @@
 /*************************************************************
-  Wheel of Life 
+  Wheel of Life V2 noWifi
   artist: Madelon Hooykaas
   Programmer: Jochem van Grieken
   All rights reserved 08-2021
-
-
-  
-  githubtest
-  3
  *************************************************************/
 #include <Arduino.h>
-#define BLYNK_PRINT Serial
-
-// #define BLYNK_TEMPLATE_ID "TMPLglejJL4x"
-// #define BLYNK_DEVICE_NAME "tester"
-
-
-//Blynk wifi parameters
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <BlynkSimpleEsp32.h>
-//char auth[] = "NJT07Z0oVqiqsbLnnGefskpcRnsAW_so";
-
-//fill in credentials
-
-char ssid[] = "Machinery";
-char pass[] = "Netraamrieke28";
-char auth[] = "NJT07Z0oVqiqsbLnnGefskpcRnsAW_so";
 
 //built in ledpin
 const int ledPin = 2;
@@ -35,7 +13,7 @@ const int ledPin = 2;
 const int pirPin = 13;
 bool pirState = false;
 
-BlynkTimer timer;
+
 
 //VFD variables
 const int VFDStartPin = 25;
@@ -53,7 +31,7 @@ bool isPlaying = true;
 int showCount = 0;
 int totalShowCount;
 int oldShowcount = 0;
-int motorInterval;
+const int motorInterval = 60000;
 const int triggerInterval = 5000;
 
 unsigned long currentMillis = 0;
@@ -72,23 +50,6 @@ void setup()
   pinMode(isPlayingPin, INPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(pirPin, INPUT_PULLDOWN);
-
-  //Blynk startup and timer initialization
-  Blynk.begin(auth, ssid, pass);
-  //Blynk.virtualWrite(V0, motorInterval);
-}
-BLYNK_CONNECTED()
-{
-  Blynk.syncVirtual(V0, V2);
-}
-
-BLYNK_WRITE(V0)
-{
-  motorInterval = param.asInt()*1000;
-}
-BLYNK_WRITE(V2)
-{
-  totalShowCount = param.asInt();
 }
 
 void checkPir()
@@ -109,11 +70,10 @@ void checkPir()
 void playaudio()
 {
   if (isPlaying){ Serial.println("playing audio");}
-  timer.setTimeout(triggerInterval, []()
-  { 
-    isPlaying = false;
-  });
   digitalWrite(triggerPin, isPlaying);
+  delay(triggerInterval);
+  isPlaying = false;
+  
 
   if (!isPlaying && !digitalRead(isPlayingPin))
   {
@@ -121,16 +81,18 @@ void playaudio()
     audioFinished = true;
     motorFinished = false;
     motorState = true;
+    showCount ++;
+    totalShowCount ++;
   }
 }
 void runmotor()
 {
   if (motorState){ Serial.println("turning motor");}
-  timer.setTimeout(motorInterval, []()
-  { 
+    digitalWrite(VFDStartPin, motorState);
+    delay(motorInterval);
     motorState = false;
-  });
-  digitalWrite(VFDStartPin, motorState);
+
+  
 
   if (!motorState && !digitalRead(VFDIsRunning))
   {
@@ -138,8 +100,7 @@ void runmotor()
     motorFinished = true;
     audioFinished = false;
     isPlaying = true;
-    showCount ++;
-    totalShowCount ++;
+
   }
 }
 
@@ -150,8 +111,6 @@ void loop()
   checkPir();
   if (pirState)
   {
-      Blynk.run();
-      timer.run();
 
     if (!audioFinished && motorFinished)
     {
@@ -161,7 +120,5 @@ void loop()
     {
       runmotor();
     }
-    Blynk.virtualWrite(V1, showCount);
-    Blynk.virtualWrite(V2, totalShowCount);
   }  
 }
