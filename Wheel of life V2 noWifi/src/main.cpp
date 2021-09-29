@@ -67,30 +67,13 @@ void checkPir()
   }
 }
 
-void playaudio()
-{
-  if (isPlaying){ Serial.println("playing audio");}
-  digitalWrite(triggerPin, isPlaying);
-  delay(triggerInterval);
-  isPlaying = false;
-  
-
-  if (!isPlaying && !digitalRead(isPlayingPin))
-  {
-    Serial.println("audio file is finished");
-    audioFinished = true;
-    motorFinished = false;
-    motorState = true;
-    showCount ++;
-    totalShowCount ++;
-  }
-}
 void runmotor()
 {
   if (motorState){ Serial.println("turning motor");}
     digitalWrite(VFDStartPin, motorState);
     delay(motorInterval);
     motorState = false;
+    digitalWrite(VFDStartPin, motorState);
 
   
 
@@ -104,21 +87,41 @@ void runmotor()
   }
 }
 
+void playaudio()
+{
+  if (isPlaying){ Serial.println("playing audio");}
+  digitalWrite(triggerPin, isPlaying);
+  delay(triggerInterval);
+  isPlaying = false;
+  digitalWrite(triggerPin, isPlaying);
+  
+
+  if (!isPlaying && !digitalRead(isPlayingPin))
+  {
+    Serial.println("audio file is finished");
+    audioFinished = true;
+    motorFinished = false;
+    motorState = true;
+    showCount ++;
+    totalShowCount ++;
+  }
+}
+
+
 void loop()
 {
-
-  //currentMillis = millis();
   checkPir();
   if (pirState)
   {
 
-    if (!audioFinished && motorFinished)
-    {
-      playaudio();
-    }
-    else if (!motorFinished && audioFinished)
+
+    if (!motorFinished && audioFinished)
     {
       runmotor();
+    }
+    else if (!audioFinished && motorFinished)
+    {
+      playaudio();
     }
   }  
 }

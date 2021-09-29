@@ -3,30 +3,11 @@
   artist: Madelon Hooykaas
   Programmer: Jochem van Grieken
   All rights reserved 08-2021
-
-
-  
-  githubtest
-  3
  *************************************************************/
 #include <Arduino.h>
-#define BLYNK_PRINT Serial
+#include <SimpleTimer.h>
 
-// #define BLYNK_TEMPLATE_ID "TMPLglejJL4x"
-// #define BLYNK_DEVICE_NAME "tester"
-
-
-//Blynk wifi parameters
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <BlynkSimpleEsp32.h>
-//char auth[] = "NJT07Z0oVqiqsbLnnGefskpcRnsAW_so";
-
-//fill in credentials
-
-char ssid[] = "Machinery";
-char pass[] = "Netraamrieke28";
-char auth[] = "NJT07Z0oVqiqsbLnnGefskpcRnsAW_so";
+SimpleTimer timer;
 
 //built in ledpin
 const int ledPin = 2;
@@ -35,7 +16,6 @@ const int ledPin = 2;
 const int pirPin = 13;
 bool pirState = false;
 
-BlynkTimer timer;
 
 //VFD variables
 const int VFDStartPin = 25;
@@ -56,9 +36,6 @@ int oldShowcount = 0;
 int motorInterval;
 const int triggerInterval = 5000;
 
-unsigned long currentMillis = 0;
-unsigned long previousMillisMotorTimer = 0;
-unsigned long previousMillisTriggerTimer = 0;
 
 void setup()
 {
@@ -73,22 +50,6 @@ void setup()
   pinMode(ledPin, OUTPUT);
   pinMode(pirPin, INPUT_PULLDOWN);
 
-  //Blynk startup and timer initialization
-  Blynk.begin(auth, ssid, pass);
-  //Blynk.virtualWrite(V0, motorInterval);
-}
-BLYNK_CONNECTED()
-{
-  Blynk.syncVirtual(V0, V2);
-}
-
-BLYNK_WRITE(V0)
-{
-  motorInterval = param.asInt()*1000;
-}
-BLYNK_WRITE(V2)
-{
-  totalShowCount = param.asInt();
 }
 
 void checkPir()
@@ -150,7 +111,6 @@ void loop()
   checkPir();
   if (pirState)
   {
-      Blynk.run();
       timer.run();
 
     if (!audioFinished && motorFinished)
@@ -161,7 +121,5 @@ void loop()
     {
       runmotor();
     }
-    Blynk.virtualWrite(V1, showCount);
-    Blynk.virtualWrite(V2, totalShowCount);
   }  
 }
